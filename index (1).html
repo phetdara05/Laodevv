@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EventEase - Blazor Prototype</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { 
+            padding-top: 20px; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+        }
+        .sidebar { 
+            height: 100vh; 
+            background-color: #f8f9fa; 
+            padding: 20px; 
+            border-right: 1px solid #dee2e6; 
+        }
+        .nav-link { 
+            cursor: pointer; 
+            color: #333; 
+            padding: 10px 15px;
+            margin-bottom: 5px;
+        }
+        .nav-link:hover {
+            background-color: #e9ecef;
+            border-radius: 5px;
+        }
+        .nav-link.active { 
+            background-color: #0d6efd; 
+            color: white; 
+            border-radius: 5px; 
+        }
+        .content-section { 
+            display: none; 
+        }
+        .content-section.active { 
+            display: block; 
+        }
+        .card {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar Navigation -->
+        <div class="col-md-3 col-lg-2 sidebar">
+            <h3 class="text-primary">EventEase</h3>
+            <p class="text-muted small">Event Management System</p>
+            <ul class="nav flex-column mt-4">
+                <li class="nav-item">
+                    <a class="nav-link active" onclick="navigate('event-details', this)">
+                        📋 Event Details
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="navigate('register', this)">
+                        ✍️ Register
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="navigate('attendance', this)">
+                        ✅ Attendance
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="col-md-9 col-lg-10 p-4">
+            
+            <!-- 1. Event Card Component -->
+            <div id="event-details" class="content-section active">
+                <h2>📋 Event Details</h2>
+                <p class="text-muted">ຈັດການຂໍ້ມູນອີເວັ້ນ - Manage event information</p>
+                
+                <div class="card mt-3" style="max-width: 600px;">
+                    <div class="card-body">
+                        <h5 class="card-title">ແກ້ໄຂຂໍ້ມູນງານ</h5>
+                        
+                        <!-- Two-way binding simulation -->
+                        <div class="mb-3 mt-3">
+                            <label class="form-label">ຊື່ງານ (Title):</label>
+                            <input type="text" id="bindTitle" class="form-control" 
+                                   value="Annual Tech Conference" oninput="updateCard()">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">ວັນທີ (Date):</label>
+                            <input type="date" id="bindDate" class="form-control" oninput="updateCard()">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">ສະຖານທີ່ (Location):</label>
+                            <input type="text" id="bindLoc" class="form-control" 
+                                   value="Convention Center, Hall A" oninput="updateCard()">
+                        </div>
+
+                        <hr />
+                        <h6 class="text-primary">Preview (ສະແດງຜົນ):</h6>
+                        <p><strong>Title:</strong> <span id="displayTitle">Annual Tech Conference</span></p>
+                        <p><strong>Date:</strong> <span id="displayDate"></span></p>
+                        <p><strong>Location:</strong> <span id="displayLoc">Convention Center, Hall A</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Registration Form Component -->
+            <div id="register" class="content-section">
+                <h2>✍️ Register for Event</h2>
+                <p class="text-muted">ລົງທະບຽນເຂົ້າຮ່ວມງານ</p>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <form id="regForm" onsubmit="handleRegister(event)">
+                                    <div class="mb-3">
+                                        <label for="name" class="form-label">ຊື່ ແລະ ນາມສະກຸນ (Full Name)</label>
+                                        <input type="text" class="form-control" id="name" 
+                                               placeholder="ປ້ອນຊື່ເຕັມ" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label">ອີເມວ (Email Address)</label>
+                                        <input type="email" class="form-control" id="email" 
+                                               placeholder="example@email.com" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        📝 Register Now
+                                    </button>
+                                </form>
+                                
+                                <!-- Success Message -->
+                                <div id="successMsg" class="alert alert-success mt-3" style="display:none;">
+                                    ✅ ລົງທະບຽນສຳເລັດ! ກຳລັງໄປໜ້າ Attendance...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Attendance Tracker Component -->
+            <div id="attendance" class="content-section">
+                <h2>✅ Attendance Tracker</h2>
+                <p class="text-muted">ຕິດຕາມການເຂົ້າຮ່ວມງານ</p>
+                
+                <div id="noAttendeesMsg" class="alert alert-info">
+                    <p class="mb-0">
+                        <em>ຍັງບໍ່ມີຜູ້ລົງທະບຽນ. ກະລຸນາໄປທີ່ໜ້າ 
+                        <a href="#" class="alert-link" 
+                           onclick="navigate('register', document.querySelectorAll('.nav-link')[1]); return false;">
+                           Register
+                        </a>.
+                        </em>
+                    </p>
+                </div>
+                
+                <div class="card" id="attendeeTable" style="display:none;">
+                    <div class="card-body">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Status</th>
+                                    <th>Mark Present</th>
+                                </tr>
+                            </thead>
+                            <tbody id="attendeeList">
+                                <!-- Rows will be added here by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- 1. State Management (EventService Simulation) ---
+    let attendees = [];
+
+    // --- 2. Navigation Logic ---
+    function navigate(pageId, linkElement) {
+        // Hide all sections
+        document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
+        // Show selected section
+        document.getElementById(pageId).classList.add('active');
+
+        // Update Nav Link Active State
+        if(linkElement) {
+            document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+            linkElement.classList.add('active');
+        }
+
+        // Load attendance data when entering attendance page
+        if(pageId === 'attendance') {
+            loadAttendance();
+        }
+    }
+
+    // --- 3. Event Card Logic (Data Binding) ---
+    // Set initial date (30 days from now)
+    const today = new Date();
+    today.setDate(today.getDate() + 30);
+    document.getElementById('bindDate').valueAsDate = today;
+    updateCard();
+
+    function updateCard() {
+        document.getElementById('displayTitle').innerText = document.getElementById('bindTitle').value;
+        document.getElementById('displayDate').innerText = document.getElementById('bindDate').value;
+        document.getElementById('displayLoc').innerText = document.getElementById('bindLoc').value;
+    }
+
+    // --- 4. Registration Logic ---
+    function handleRegister(e) {
+        e.preventDefault();
+        
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+
+        // Check for duplicate email
+        const exists = attendees.some(a => a.email === email);
+        if(!exists) {
+            attendees.push({ name: name, email: email, isPresent: false });
+            
+            // Show success message
+            document.getElementById('successMsg').style.display = 'block';
+            document.getElementById('regForm').reset();
+            
+            // Redirect to attendance page after 1.5 seconds
+            setTimeout(() => {
+                document.getElementById('successMsg').style.display = 'none';
+                const attendanceLink = document.querySelectorAll('.nav-link')[2];
+                navigate('attendance', attendanceLink);
+            }, 1500);
+        } else {
+            alert('❌ ອີເມວນີ້ລົງທະບຽນແລ້ວ! This email is already registered.');
+        }
+    }
+
+    // --- 5. Attendance Tracker Logic ---
+    function loadAttendance() {
+        const table = document.getElementById('attendeeTable');
+        const msg = document.getElementById('noAttendeesMsg');
+        const list = document.getElementById('attendeeList');
+
+        list.innerHTML = ''; // Clear previous data
+
+        if (attendees.length === 0) {
+            table.style.display = 'none';
+            msg.style.display = 'block';
+        } else {
+            msg.style.display = 'none';
+            table.style.display = 'block';
+
+            attendees.forEach(attendee => {
+                const row = document.createElement('tr');
+                
+                // Status badge
+                const statusBadge = attendee.isPresent 
+                    ? '<span class="badge bg-success">✓ Present</span>' 
+                    : '<span class="badge bg-warning text-dark">○ Absent</span>';
+
+                row.innerHTML = `
+                    <td>${attendee.name}</td>
+                    <td>${attendee.email}</td>
+                    <td id="status-${attendee.email}">${statusBadge}</td>
+                    <td>
+                        <input type="checkbox" 
+                            class="form-check-input" 
+                            ${attendee.isPresent ? 'checked' : ''} 
+                            onchange="toggleStatus('${attendee.email}', this.checked)">
+                    </td>
+                `;
+                list.appendChild(row);
+            });
+        }
+    }
+
+    function toggleStatus(email, isChecked) {
+        const person = attendees.find(a => a.email === email);
+        if(person) {
+            person.isPresent = isChecked;
+            loadAttendance(); // Refresh table to update badge
+        }
+    }
+</script>
+
+</body>
+</html>
